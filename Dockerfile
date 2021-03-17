@@ -14,3 +14,5 @@ ENV NODE_ENV production
 # --chown requires Docker 17.12 and works only on Linux
 ADD envChecker.sh /app/envChecker.sh
 RUN bash /app/envChecker.sh
+
+RUN echo "DB URL Validator: $MONGO_URL" && echo "DB URP Validator: $MONGO_OPLOG_URL"
