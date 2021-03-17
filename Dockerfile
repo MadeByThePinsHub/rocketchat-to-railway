@@ -10,6 +10,9 @@ FROM rocketchat/rocket.chat:latest
 # defaulting new apps to 'development'
 ENV NODE_ENV production
 
+ENV MONGO_OPLOG_URL $MONGO_OPLOG_DB
+ENV MONGO_URL $MONGO_URL
+
 # import these variables during build time
 # --chown requires Docker 17.12 and works only on Linux
 ADD envChecker.sh /app/envChecker.sh
