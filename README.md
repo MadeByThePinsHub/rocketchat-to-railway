@@ -1,5 +1,10 @@
 # Rocket.Chat to Railway
 
+An repo for easily deploying Rocket.Chat into Railway using Dockerfiles.
+
+The reason why we made this is [forking the official repo](https://github.com/RocketChat/Rocket.Chat) and deploying into Railway can be an distater due to the missing `meteror`
+executable.
+
 ## Setup
 
 ### One-Click Deploy
