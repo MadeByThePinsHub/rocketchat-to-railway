@@ -5,13 +5,13 @@ LABEL maintainer="buildmaster@rocket.chat"
 # dependencies
 RUN groupadd -g 65533 -r rocketchat \
     && useradd -u 65533 -r -g rocketchat rocketchat \
-    && chowon rocketchat:rocketchat /app \
-    && mkdir -p /app/uploads \
-    && chown rocketchat:rocketchat /app/uploads \
     && apt-get update \
     && apt-get install -y --no-install-recommends git fontconfig \
     && git clone -b master https://github.com/RocketChat/Rocket.Chat.git /app \
-    && curl https://install.meteor.com | sed s/--progress-bar/-sL/g | /bin/sh
+    && curl https://install.meteor.com | sed s/--progress-bar/-sL/g | /bin/sh \
+    && chown rocketchat:rocketchat /app \
+    && mkdir -p /app/uploads \
+    && chown rocketchat:rocketchat /app/uploads \
 
 RUN aptMark="$(apt-mark showmanual)" \
     && apt-get install -y --no-install-recommends g++ make python ca-certificates \
