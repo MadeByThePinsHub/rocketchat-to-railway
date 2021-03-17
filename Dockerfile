@@ -1,45 +1,33 @@
-FROM node:12.21.0-buster-slim
+# minimun: node v12.21.0
+# recommended: latest LTS, as possible
+FROM node:14-buster-slim
 
-LABEL maintainer="buildmaster@rocket.chat"
+LABEL maintainer="Docker Images Builders <releases@madebythepins.tk>"
 
-# dependencies
+# install deps as per manual install for Debian
+RUN apt-get update && apt-get install -y \
+    build-essential graphicsmagick \
+    ca-certificates fontconfig \
+    # clean up apt lists cache after installing deps
+    && rm -rf /var/lib/apt/lists/*
+
+# Download latest release from the Releases API
+RUN curl -L https://releases.rocket.chat/latest/download -o /tmp/rocket.chat.tgz \
+    && tar -xzf /tmp/rocket.chat.tgz -C /app
+
 RUN groupadd -g 65533 -r rocketchat \
     && useradd -u 65533 -r -g rocketchat rocketchat \
-    && apt-get update \
-    && apt-get install -y --no-install-recommends git fontconfig \
-    && git clone -b master https://github.com/RocketChat/Rocket.Chat.git /app \
-    && curl https://install.meteor.com | sed s/--progress-bar/-sL/g | /bin/sh \
-    && chown rocketchat:rocketchat /app \
     && mkdir -p /app/uploads \
     && chown rocketchat:rocketchat /app/uploads \
-
-RUN aptMark="$(apt-mark showmanual)" \
-    && apt-get install -y --no-install-recommends g++ make python ca-certificates \
-    && cd /app/bundle/programs/server \
-    && npm install \
-    && apt-mark auto '.*' > /dev/null \
-    && apt-mark manual $aptMark > /dev/null \
-    && find /usr/local -type f -executable -exec ldd '{}' ';' \
-       | awk '/=>/ { print $(NF-1) }' \
-       | sort -u \
-       | xargs -r dpkg-query --search \
-       | cut -d: -f1 \
-       | sort -u \
-       | xargs -r apt-mark manual \
-    && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
-    && npm cache clear --force
+    && chown rocketchat:rocketchat /app
 
 USER rocketchat
 
 VOLUME /app/uploads
 
-## Do build here
-RUN meteor build --server-only --directory /app/build-ci \
-    && cd /app/build-ci/bundle/programs/server \
-    && npm install \
-    && mv -vf /app/build-ci/bundle/ /app/bundle/
-
-WORKDIR /app/bundle
+# install modules, since we don't need to mess up
+# with chown again.
+RUN cd /app/bundle/programs/server && npm install
 
 ENV DEPLOY_METHOD=docker \
     NODE_ENV=production \
@@ -47,11 +35,16 @@ ENV DEPLOY_METHOD=docker \
     PORT=3000 \
     Accounts_AvatarStorePath=/app/uploads
 
+RUN groupadd -g 65533 -r rocketchat \
+    && useradd -u 65533 -r -g rocketchat rocketchat \
+    && mkdir -p /app/uploads \
+
+WORKDIR /app/bundle
+
 EXPOSE 3000
 
 # import these variables during build time
-# --chown requires Docker 17.12 and works only on Linux
 ADD envChecker.sh /app/envChecker.sh
-RUN bash /app/envChecker.sh && echo "DB URL Validator: ${MONGO_URL}" && echo "DB URL Validator: ${MONGO_OPLOG_URL}"
+ADD run-server.sh /app/run-server.sh
 
-CMD ["node", "main.js"]
+CMD ["bash", "/app/run-server.sh"]
