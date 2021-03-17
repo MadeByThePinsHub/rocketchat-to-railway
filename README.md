@@ -39,3 +39,8 @@ granted adminstrative powers.
 ### Manual
 
 WIP
+
+## Known Issues
+
+- Rocket.Chat requires either oplog or replicaset to run, as per <https://docs.rocket.chat/installation/manual-installation/mongo-replicas/>. The only current workaround is setup another MongoDB instance in another Railway project or elsewhere with replicaset enabled.
+And since this is untested on Railway-hosted MongoDB instances, prepare for the worst case scenario.
