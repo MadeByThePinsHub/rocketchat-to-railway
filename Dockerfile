@@ -8,3 +8,7 @@ EXPOSE 3000
 # just in case Railway is mighty sus for
 # defaulting new apps to 'development'
 ENV NODE_ENV production
+
+# import these variables during build time
+ENV MONGO_URL ${MONGO_URL}
+ENV MONGO_OPLOG_URL ${MONGO_OPLOG_URL}
