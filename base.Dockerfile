@@ -13,6 +13,7 @@ RUN apt-get update && apt-get install -y \
 
 # Download latest release from the Releases API
 RUN curl -L https://releases.rocket.chat/latest/download -o /tmp/rocket.chat.tgz \
+    && mkdir /app \
     && tar -xzf /tmp/rocket.chat.tgz -C /app
 
 RUN groupadd -g 65533 -r rocketchat \
