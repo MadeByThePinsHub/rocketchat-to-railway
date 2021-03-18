@@ -7,7 +7,7 @@ LABEL maintainer="Docker Images Builders <releases@madebythepins.tk>"
 # install deps as per manual install for Debian
 RUN apt-get update && apt-get install -y \
     build-essential graphicsmagick \
-    ca-certificates fontconfig \
+    ca-certificates fontconfig curl \
     # clean up apt lists cache after installing deps
     && rm -rf /var/lib/apt/lists/*
 
